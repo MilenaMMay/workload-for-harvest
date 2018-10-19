@@ -10,23 +10,42 @@ class App extends Component {
       accountId: null,
       person: null,
     }
-
   }
 
+  componentDidMount() {
+    this.loadState()
+  }
+
+  loadState() {
+    const state = localStorage.getItem('workloadAppState')
+    if (state) {
+      this.setState(JSON.parse(state))
+    }
+  }
+
+  storeState() {
+    localStorage.setItem('workloadAppState', JSON.stringify(this.state))
+  }
 
   tokenInputHandler(value) {
-    this.setState({token: value})
+    this.setState({token: value}, () => {
+      this.storeState()
+    })
   }
 
   accountIdInputHandler(value) {
-    this.setState({accountId: value})
+    this.setState({accountId: value}, () => {
+      this.storeState()
+    })
   }
 
   refreshHandler(e) {
     fetch(`https://api.harvestapp.com/v2/users/me?access_token=${this.state.token}&account_id=${this.state.accountId}`)
       .then(res => res.json())
       .then(({first_name, last_name, email}) => {
-        this.setState({ person: `${first_name} ${last_name} (${email})` })
+        this.setState({ person: `${first_name} ${last_name} (${email})` }, () => {
+          this.storeState()
+        })
       })
   }
 
@@ -35,9 +54,9 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
           <label>Token:</label>
-          <input onChange={ (e) => { this.tokenInputHandler(e.target.value) }}></input>
+          <input onChange={ (e) => { this.tokenInputHandler(e.target.value) }} value={this.state.token} />
           <label>Account ID:</label>
-          <input onChange={ (e) => { this.accountIdInputHandler(e.target.value) }}></input>
+          <input onChange={ (e) => { this.accountIdInputHandler(e.target.value) }} value={this.state.accountId} />
           <button onClick={ (e) => { this.refreshHandler(e) }} >Refresh</button>
 
           <p>
