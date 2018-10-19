@@ -11,6 +11,7 @@ class App extends Component {
       token: null,
       accountId: null,
       person: null,
+      data: {},
     }
   }
 
@@ -54,7 +55,6 @@ class App extends Component {
     fetch(`https://api.harvestapp.com/v2/time_entries?access_token=${this.state.token}&account_id=${this.state.accountId}`)
       .then(res => res.json())
       .then(({time_entries}) => {
-        console.log(time_entries)
         let data = time_entries.reduce((map, entry) => {
           let spent_date = moment(entry.spent_date)
           let key = `${spent_date.year()}-${spent_date.week()}`
@@ -64,13 +64,16 @@ class App extends Component {
           map[key] += entry.hours
           return map;
         }, {})
-        console.log(data);
+        this.setState({data}, () => {
+          this.storeState()
+          this.updateChart()
+        })
       })
   }
 
   updateChart() {
     var n = 4, // The number of series.
-        m = 58; // The number of values per series.
+        m = Object.keys(this.state.data).length; // The number of values per series.
 
     // The xz array has m elements, representing the x-values shared by all series.
     // The yz array has n elements, representing the y-values of each of the n series.
