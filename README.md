@@ -1,3 +1,19 @@
+# Workload for Harvest
+
+## Pattern Library
+
+To view the Pattern Library, execute `yarn run storybook` and go to [http://localhost:9009/](http://localhost:9009/).
+
+## Tests
+
+To run the test suite, execute `yarn run test`.
+
+## Application
+
+To start the application, execute `yarn start`. The application will open at [http://localhost:3000/](http://localhost:3000/).
+
+---
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>
