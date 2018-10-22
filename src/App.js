@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import './App.css';
-import moment from 'moment';
 
 class App extends Component {
   constructor(props) {
@@ -53,15 +52,33 @@ class App extends Component {
     fetch(`https://api.harvestapp.com/v2/time_entries?access_token=${this.state.token}&account_id=${this.state.accountId}`)
       .then(res => res.json())
       .then(({time_entries}) => {
-        let data = time_entries.reduce((map, entry) => {
-          let spent_date = moment(entry.spent_date)
-          let key = `${spent_date.year()}-${spent_date.week()}`
-          if(!map[key]) {
-            map[key] = 0
+
+        const taskData = time_entries.reduce((taskMap, entry) => {
+          let key = `${entry.project.name} ${entry.task.name}`
+          if(!taskMap.get(key)) {
+            taskMap.set(key, [])
           }
-          map[key] += entry.hours
-          return map;
-        }, {})
+          taskMap.set(key, [...taskMap.get(key), {spentDate: entry.spent_date, hours: entry.hours}])
+          return taskMap;
+        }, new Map())
+
+        let data = {}
+
+        taskData.forEach((value, key) => {
+          const dateData = value.reduce((dateMap, entry) => {
+            let dateKey = entry.spentDate
+            if(!dateMap[dateKey]) {
+              dateMap[dateKey] = 0
+            }
+            dateMap[dateKey] += entry.hours
+            return dateMap;
+          }, {})
+
+          data[key] = dateData
+        })
+
+        console.log(data);
+
         this.setState({data}, () => {
           this.storeState()
         })
